@@ -1,0 +1,31 @@
+	I2C bus designed in slower devices communicate with faster system
+without slow down the faster one;
+	I2C bus uses two wires:Serial data(SDA) and serial clock(SCL).
+master can initial communication,but slave just respond to the command.
+In order to communicate with specific device,each slave device mast have
+ an address	which is unique on the bus.
+	both start and stop.SCL must be high,SDA from high to low is start,
+the opposite is stop; 
+
+	I2C data transfer:
+	I2C bus is transferred in 8bit packets.there is no limitation on the number 
+of bytes,however each byte must followed by an acknowledge bit.if slave device does
+not acknowledge transfer this means no more data.master must generate stop or repeat
+start.
+
+	each master must generate its own clock and data can change only when clock is low.
+each slave device should have a 7-bit address.communication start with start signal,
+follow by 7-bit address and direction bit.if this bit is 0 then master will write to
+the slaver.otherwise master will read from slaver. after address and direction bit,master
+could continue writing or reading.master end with stop to free i2c bus,if the master need
+ to communication with other slave it can generate a repeat start without stop.All bytes 
+ are transferred with MSB bit shift first.
+ 
+	7-bit I2C Addressing:
+A slave address may contain a fixed and a programmable 
+	Extention of the i2c Specifications
+	standard i2c rate is up to 100kbit/s and 7-bit addressing.extension i2c upgrade to:
+  fast mode--supports rates up to 400kbit/s;
+  High speed mode -- supports rates to 3.4Mbit/s
+  10bit addressing -- supports to 1024 i2c addresses  
+	
