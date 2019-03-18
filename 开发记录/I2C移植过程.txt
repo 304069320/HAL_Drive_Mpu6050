@@ -2,3 +2,11 @@
 	I2C读写失败需要注意一个问题，HAL库提供的读写函数地址为高7位，LSB位是读写
 控制位。所以对地址应左移一位后进行输入。按照此操作，使用HAL_I2C库读取
 MPU6050 WHO AM I寄存器可以读到地址为0X68。
+	成功读取标志位后出现dmp_load_motion_driver_firmware()失败问题，检查发现读数据异常。分析结果原因
+	
+由于i2CWriteh函数 
+原型为HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+ 原本调用写为HAL_I2C_Mem_Write( &MpuI2c, addr<<1, reg,len,tmp,len,1000);第四参数理解为了寄存器长度
+ 实际上第4个参数 RegSize应为 指定寄存器是8bit还是16bit。
+ 将调用改为HAL_I2C_Mem_Write( &MpuI2c, addr<<1, reg,I2C_MEMADD_SIZE_8BIT,tmp,len,1000);后，读取正常。
+

@@ -4,6 +4,7 @@
 //#include "usart.h"
 //#include "usart.h"
 
+extern USART_HandleTypeDef huart1;
 
 #define PRINT_ACCEL     (0x01)
 #define PRINT_GYRO      (0x02)
@@ -12,7 +13,7 @@
 #define GYRO_ON         (0x02)
 #define MOTION          (0)
 #define NO_MOTION       (1)
-#define DEFAULT_MPU_HZ  (200)
+#define DEFAULT_MPU_HZ  (50)
 #define FLASH_SIZE      (512)
 #define FLASH_MEM_START ((void*)0x1800)
 #define q30  1073741824.0f
@@ -301,8 +302,9 @@ void Read_DMP(void)
 	  unsigned long sensor_timestamp;
 		unsigned char more;
 		long quat[4];
+        int8_t req;
 
-				dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors, &more);		
+				req = dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors, &more);		
 				if (sensors & INV_WXYZ_QUAT )
 				{    
 					 q0=quat[0] / q30;
@@ -329,3 +331,12 @@ int Read_Temperature(void)
 	  return (int)Temp;
 }
 //------------------End of File----------------------------
+
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  char str[100];
+  
+  Read_DMP();
+
+}

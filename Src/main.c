@@ -20,10 +20,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "MPU6050.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "MPU6050.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,8 +47,8 @@ I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim3;
 
-UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
+USART_HandleTypeDef huart1;
+USART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -73,13 +74,10 @@ static void MX_I2C1_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-char pData;
-HAL_StatusTypeDef req;
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
-
+  char str[100];
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -100,22 +98,26 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
+//  MX_USART1_UART_Init();
+//  MX_USART2_UART_Init();
   MX_TIM3_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-
-
-  /* USER CODE END 2 */
   DMP_Init();
- /* Infinite loop */
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+  /* USER CODE END 2 */
+  
+  /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-    Read_DMP(); 
-    HAL_Delay(50);
+//  Read_DMP();
+//  HAL_Delay(5);
+//  sprintf(str,"Pitch is %6f,Roll is %6f",Pitch,Roll);
+//  int Len;
+//    Len = strlen(str);
+//  HAL_USART_Transmit(&huart1,str,Len,1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -259,9 +261,9 @@ static void MX_USART1_UART_Init(void)
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
   huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
+//  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+//  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_USART_Init(&huart1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -292,9 +294,9 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
+//  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+//  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_USART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -311,11 +313,22 @@ static void MX_USART2_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin : PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 3, 0);
+//  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
